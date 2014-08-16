@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-2">
+      <ul class="nav nav-pills nav-stacked">
+        {% for p in projects %}
+          <li {{ active('project/%s' % (p.id)) }}
+              ><a href="{{ url_for('.project', project_id=p.id) }}">{{ p }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    {% if not project %}
+    <div class="col-sm-10">
+        <p class="lead">Please select a project from the left</p>
+    </div>
+    {% else %}
+    <div class="col-sm-8">
+        <p>Aliases: {{ ' '.join(project.aliases_list) }}</p>
+    </div>
+
+    <div class="col-sm-2">
+      <ul class="nav nav-pills">
+        {% for u in project.users %}
+        <li><a href="{{ url_for('.user', user_id=u.id) }}">{{ u }}</a> </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+{% endblock %}

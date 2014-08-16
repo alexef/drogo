@@ -1,5 +1,5 @@
 from flask.ext.sqlalchemy import SQLAlchemy
-from sqlalchemy import String, DateTime, Date, Float, Integer
+from sqlalchemy import String, DateTime, Date, Float, Integer, func
 from sqlalchemy.orm import relationship, backref
 
 
@@ -9,6 +9,34 @@ db = SQLAlchemy()
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(Integer, primary_key=True)
+
+    @property
+    def months(self):
+        qs = (
+            Worktime.query
+            .with_entities(func.strftime('%Y-%m', Worktime.day))
+            .filter_by(user=self)
+            .distinct()
+        )
+        data = [m[0] for m in qs]
+        data.sort(reverse=True)
+        return data
+
+    @property
+    def last_worktimes(self):
+        return self.worktimes[:20]
+
+    def month_worktimes(self, month):
+        return (
+            Worktime.query
+            .filter_by(user=self)
+            .filter(func.strftime('%Y-%m', Worktime.day) == month)
+            .order_by(Worktime.day.desc())
+            .all()
+        )
+
+    def __unicode__(self):
+        return unicode(self.id)
 
 
 class Project(db.Model):
@@ -20,6 +48,20 @@ class Project(db.Model):
         alias = ProjectAltName(slug=alias_slug, project=self)
         db.session.add(alias)
         db.session.commit()
+
+    @property
+    def aliases_list(self):
+        return [self.slug] + [a.slug for a in self.aliases]
+
+    @property
+    def users(self):
+        qs = User.query.filter(User.id.in_(
+            Worktime.query
+            .with_entities(Worktime.user_id)
+            .filter_by(project=self)
+            .distinct()
+        ))
+        return qs
 
     def __unicode__(self):
         return self.slug
@@ -57,8 +99,8 @@ class Worktime(db.Model):
     event_id = db.Column(db.ForeignKey('event.uid'), nullable=True)
     event = relationship('Event', backref=backref('worktime', uselist=False))
 
-
 _cached_projects = {}
+
 
 def get_projects():
     if not _cached_projects:

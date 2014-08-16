@@ -1,0 +1,48 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-2">
+      <ul class="nav nav-pills nav-stacked">
+        {% for u in users %}
+          <li {{ active('user/%s' % (u.id)) }}
+              ><a href="{{ url_for('.user', user_id=u.id) }}">{{ u }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    {% if not user %}
+    <div class="col-sm-10">
+        <p class="lead">Please select an user from the left</p>
+    </div>
+    {% else %}
+    <div class="col-sm-8">
+      {% if month %}
+        <p class="lead">Work for the month: {{ month }}. Total: {{ total }} hours</p>
+      {% else %}
+        <p class="lead">Last worktimes:</p>
+      {% endif %}
+
+      <table class="table">
+        {% for wt in worktimes %}
+          <tr>
+            <td>{{ wt.day }}</td>
+            <td>{{ wt.project or '?' }}</td>
+            <td>{% if wt.hours %}{{ wt.hours }} hours{% else %}-{% endif %}</td>
+            <td><em>{{ wt.details }}</em>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    <div class="col-sm-2">
+      <ul class="nav nav-pills">
+        {% for m in user.months %}
+        <li {{ active('?month=%s' % m) }}><a href="{{ url_for('.user', user_id=user.id, month=m) }}">{{ m }}</a> </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+{% endblock %}
