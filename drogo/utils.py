@@ -4,10 +4,17 @@ import pytz
 
 def get_last_week():
     start = datetime.now() - timedelta(days=7)
-    return pytz.utc.localize(start)
+    return absolute(start)
 
 
-def absolute(datetime):
-    if datetime.tzinfo is None:
-        return pytz.utc.localize(datetime)
-    return datetime
+def absolute(dt):
+    if dt.tzinfo is None:
+        return pytz.utc.localize(dt)
+    return dt
+
+
+def naive(dt):
+    if isinstance(dt, datetime):
+        dt = absolute(dt)
+        return dt.replace(tzinfo=None)
+    return dt

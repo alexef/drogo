@@ -111,9 +111,9 @@ class ProjectAltName(db.Model):
 class Event(db.Model):
     __tablename__ = 'event'
     uid = db.Column(String(64), primary_key=True)
-    start = db.Column(DateTime)
-    end = db.Column(DateTime)
-    modified = db.Column(DateTime)
+    start = db.Column(DateTime(timezone=True))
+    end = db.Column(DateTime(timezone=True))
+    modified = db.Column(DateTime(timezone=True))
     summary = db.Column(String(256))
 
 

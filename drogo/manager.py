@@ -24,7 +24,7 @@ def add_event(event, userid):
     event_obj = (
         Event.query.filter_by(uid=event['uid']).first() or Event(**event)
     )
-    if event['modified'] != absolute(event_obj.modified):
+    if event['modified'] != event_obj.modified:
         event_obj.modified = event['modified']
         event_obj.summary = event['summary']
         event_obj.start = event['start']
@@ -37,6 +37,7 @@ def add_event(event, userid):
     parse_summary(work_time_obj)
     db.session.add(work_time_obj)
     print u"Added {0}".format(work_time_obj.details)
+    return event_obj
 
 
 @db_manager.command

@@ -2,13 +2,14 @@ from datetime import datetime
 from icalendar import Calendar
 import re
 from drogo.models import get_projects
+from drogo.utils import naive
 
 
 def parse_event(component):
     return {
-        'modified': component['last-modified'].dt,
-        'start': component['dtstart'].dt,
-        'end': component['dtend'].dt,
+        'modified': naive(component['last-modified'].dt),
+        'start': naive(component['dtstart'].dt),
+        'end': naive(component['dtend'].dt),
         'summary': unicode(component['summary']),
         'uid': component['uid'],
     }
@@ -37,9 +38,10 @@ def parse_summary(worktime):
         worktime.hours = float(hours[0])
 
     project_names = get_projects()
-    for word in summary.lower().split(' '):
-        if word in project_names:
-            worktime.project = project_names[word]
+    summary_low = summary.lower()
+    for name in project_names:
+        if name in summary_low:
+            worktime.project = project_names[name]
             break
 
     return worktime
