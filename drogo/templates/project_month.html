@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+{% from '_macros.html' import breadcrumbs, worktimes_table %}
+
+{% block breadcrumbs %}
+  {{ breadcrumbs([
+      (url_for('.homepage'), 'Start'),
+      (url_for('.projects'), 'Projects'),
+      (url_for('.project', project_id=project.id), project.slug),
+      (None, 'Monthly'),
+     ]) }}
+{% endblock %}
+
+{% block content %}
+  <div>
+    {% if not month %}
+      <p class="lead">Please select a month</p>
+    {% else %}
+      <p class="lead">Worktimes for month: {{ month }}</p>
+
+      {{ worktimes_table(worktimes, user=True) }}
+    {% endif %}
+  </div>
+{% endblock %}

@@ -9,6 +9,8 @@ db = SQLAlchemy()
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(Integer, primary_key=True)
+    full_name = db.Column(String(128))
+    calendar_url = db.Column(String(128))
 
     @property
     def months(self):
@@ -36,7 +38,7 @@ class User(db.Model):
         )
 
     def __unicode__(self):
-        return unicode(self.id)
+        return self.full_name or unicode(self.id)
 
 
 class Project(db.Model):
@@ -48,6 +50,15 @@ class Project(db.Model):
         alias = ProjectAltName(slug=alias_slug, project=self)
         db.session.add(alias)
         db.session.commit()
+
+    def month_worktimes(self, month):
+        return (
+            Worktime.query
+            .filter_by(project=self)
+            .filter(func.strftime('%Y-%m', Worktime.day) == month)
+            .order_by(Worktime.day.asc())
+            .all()
+        )
 
     @property
     def aliases_list(self):
@@ -62,6 +73,29 @@ class Project(db.Model):
             .distinct()
         ))
         return qs
+
+    @property
+    def hours(self):
+        return (
+            Worktime.query
+            .with_entities(func.sum(Worktime.hours))
+            .filter_by(project=self)
+            .first()
+        )[0]
+
+    @property
+    def monthly_hours(self):
+        qs = (
+            Worktime.query
+            .with_entities(func.strftime('%Y-%m', Worktime.day).label('month'),
+                           func.sum(Worktime.hours))
+            .filter_by(project=self)
+            .group_by(func.strftime('%Y-%m', Worktime.day))
+            .all()
+        )
+        qs.sort(key=lambda a:a[0], reverse=True)
+        return qs
+
 
     def __unicode__(self):
         return self.slug

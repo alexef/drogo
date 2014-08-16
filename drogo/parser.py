@@ -32,7 +32,7 @@ def parse_summary(worktime):
     else:
         worktime.day = worktime.event.start
 
-    hours = re.findall(r'([0-9]+\.?[0-9]*)[oh]', summary)
+    hours = re.findall(r'([0-9]+\.?[0-9]*)\ *[oraeh]', summary)
     if hours:
         worktime.hours = float(hours[0])
 

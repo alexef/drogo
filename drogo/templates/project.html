@@ -1,4 +1,13 @@
 {% extends 'layout.html' %}
+{% from '_macros.html' import breadcrumbs %}
+
+{% block breadcrumbs %}
+  {{ breadcrumbs([
+      (url_for('.homepage'), 'Start'),
+      (url_for('.projects'), 'Projects'),
+      (None, project.slug or 'Please select'),
+     ]) }}
+{% endblock %}
 
 {% block content %}
   <div class="row">
@@ -13,21 +22,41 @@
     </div>
 
     {% if not project %}
-    <div class="col-sm-10">
+      <div class="col-sm-10">
         <p class="lead">Please select a project from the left</p>
-    </div>
+      </div>
     {% else %}
-    <div class="col-sm-8">
-        <p>Aliases: {{ ' '.join(project.aliases_list) }}</p>
-    </div>
+      <div class="col-sm-8">
+        <p class="lead">Details of {{ project }}</p>
 
-    <div class="col-sm-2">
-      <ul class="nav nav-pills">
-        {% for u in project.users %}
-        <li><a href="{{ url_for('.user', user_id=u.id) }}">{{ u }}</a> </li>
-        {% endfor %}
-      </ul>
-    </div>
+        <p>Aliases: <em>{{ ' '.join(project.aliases_list) }}</em>.
+          Total hours: {{ project.hours }}</p>
+
+        <table class="table">
+          <thead>
+          <tr>
+            <th>Month</th>
+            <th>Hours</th>
+          </tr>
+          </thead>
+          {% for month, hours in project.monthly_hours %}
+            {% set details_url = url_for('.project_monthly',
+                                        project_id=project.id, month=month) %}
+            <tr>
+              <td><a href="{{ details_url }}">{{ month }}</a></td>
+              <td>{{ hours or '-' }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <div class="col-sm-2">
+        <ul class="nav nav-pills nav-stacked">
+          {% for u in project.users %}
+            <li><a href="{{ url_for('.user', user_id=u.id) }}">{{ u }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
     {% endif %}
   </div>
 {% endblock %}

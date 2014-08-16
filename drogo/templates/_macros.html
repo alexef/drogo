@@ -1,0 +1,33 @@
+{% macro breadcrumbs(data) %}
+  <ol class="breadcrumb">
+    {% for url, text in data %}
+      <li>
+        {% if url %}
+          <a href="{{ url }}">{{ text }}</a>
+        {% else %}
+          {{ text }}
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+{% endmacro %}
+
+
+{% macro worktimes_table(worktimes, user=False) %}
+  <table class="table">
+    {% for wt in worktimes %}
+      <tr>
+        <td>{{ wt.day }}</td>
+        <td>
+          {% if not user %}
+            {{ wt.project or '?' }}
+          {% else %}
+            {{ wt.user }}
+          {% endif %}
+        </td>
+        <td>{% if wt.hours %}{{ wt.hours }} hours{% else %}-{% endif %}</td>
+        <td><em>{{ wt.details }}</em>
+      </tr>
+    {% endfor %}
+  </table>
+{% endmacro %}

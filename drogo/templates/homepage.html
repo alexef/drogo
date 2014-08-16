@@ -1,4 +1,12 @@
 {% extends 'layout.html' %}
 
 {% block content %}
+  <div class="row">
+    <div class="col-sm-12">
+       <p class="lead">A Timesheet Manager</p>
+
+       <p>{{users}} <a href="{{ url_for('.users') }}">users</a> ,
+         {{ projects }} <a href="{{ url_for('.projects') }}">projects</a>.</p>
+    </div>
+  </div>
 {% endblock %}

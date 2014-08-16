@@ -1,4 +1,14 @@
 {% extends 'layout.html' %}
+{% from '_macros.html' import breadcrumbs, worktimes_table %}
+
+{% block breadcrumbs %}
+  {{ breadcrumbs([
+      (url_for('.homepage'), 'Start'),
+      (url_for('.users'), 'Users'),
+      (None, user.full_name or 'Please select'),
+     ])
+  }}
+{% endblock %}
 
 {% block content %}
   <div class="row">
@@ -24,16 +34,7 @@
         <p class="lead">Last worktimes:</p>
       {% endif %}
 
-      <table class="table">
-        {% for wt in worktimes %}
-          <tr>
-            <td>{{ wt.day }}</td>
-            <td>{{ wt.project or '?' }}</td>
-            <td>{% if wt.hours %}{{ wt.hours }} hours{% else %}-{% endif %}</td>
-            <td><em>{{ wt.details }}</em>
-          </tr>
-        {% endfor %}
-      </table>
+      {{ worktimes_table(worktimes) }}
     </div>
 
     <div class="col-sm-2">
