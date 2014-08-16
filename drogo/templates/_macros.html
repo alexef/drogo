@@ -22,7 +22,8 @@
           {% if not user %}
             {{ wt.project or '?' }}
           {% else %}
-            {{ wt.user }}
+            {% set url = url_for('.user', user_id=wt.user_id, month=month) %}
+            <a href="{{ url }}">{{ wt.user }}</a>
           {% endif %}
         </td>
         <td>{% if wt.hours %}{{ wt.hours }} hours{% else %}-{% endif %}</td>
