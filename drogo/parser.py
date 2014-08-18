@@ -6,13 +6,16 @@ from drogo.utils import naive
 
 
 def parse_event(component):
-    return {
-        'modified': naive(component['last-modified'].dt),
-        'start': naive(component['dtstart'].dt),
-        'end': naive(component['dtend'].dt),
-        'summary': unicode(component['summary']),
-        'uid': component['uid'],
-    }
+    try:
+        return {
+            'modified': naive(component['last-modified'].dt),
+            'start': naive(component['dtstart'].dt),
+            'end': naive(component['dtend'].dt),
+            'summary': unicode(component['summary']),
+            'uid': component['uid'],
+        }
+    except:
+        return {}
 
 
 def parse_ical(ical_text):

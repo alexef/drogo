@@ -21,6 +21,9 @@ def create_manager(app):
 
 
 def add_event(event, userid):
+    if not event:
+        return
+
     event_obj = (
         Event.query.filter_by(uid=event['uid']).first() or Event(**event)
     )
