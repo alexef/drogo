@@ -5,14 +5,26 @@ from drogo.models import get_projects
 from drogo.utils import naive
 
 
+def parse_summary(summary):
+    info = {}
+    hours = re.findall(r'([0-9]+\.?[0-9]*)\ *[oh][rae]*', summary)
+    if hours:
+        info['hours'] = float(hours[0])
+    else:
+        info['hours'] = None
+    return info
+
+
 def parse_event(component):
     try:
+        info = parse_summary(unicode(component['summary']))
         return {
             'modified': naive(component['last-modified'].dt),
             'start': naive(component['dtstart'].dt),
             'end': naive(component['dtend'].dt),
             'summary': unicode(component['summary']),
             'uid': component['uid'],
+            'hours': info['hours'],
         }
     except:
         return {}
@@ -36,9 +48,8 @@ def parse_summary(worktime):
     else:
         worktime.day = worktime.event.start
 
-    hours = re.findall(r'([0-9]+\.?[0-9]*)\ *[oh][rae]*', summary)
-    if hours:
-        worktime.hours = float(hours[0])
+    if worktime.event.hours is not None:
+        worktime.hours = worktime.event.hours
 
     project_names = get_projects()
     summary_low = summary.lower()

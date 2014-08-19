@@ -115,6 +115,7 @@ class Event(db.Model):
     end = db.Column(DateTime(timezone=True))
     modified = db.Column(DateTime(timezone=True))
     summary = db.Column(String(256))
+    hours = db.Column(Float, default=None, nullable=True)
 
 
 class Worktime(db.Model):

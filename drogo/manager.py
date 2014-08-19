@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask.ext.script import Manager
 import requests
+from sqlalchemy import func
 from drogo.models import db, Event, Worktime, User, Project, get_projects
 from drogo.parser import parse_ical, parse_summary
 from drogo.utils import get_last_week, absolute
@@ -41,6 +42,23 @@ def add_event(event, userid):
     db.session.add(work_time_obj)
     print u"Added {0}".format(work_time_obj.details)
     return event_obj
+
+
+def tweak_days(user):
+    """ Add days for events without hour information.
+    """
+    wt_qs = Worktime.query.filter_by(user=user)
+    worktimes_nohours = wt_qs.filter_by(hours=None)
+    for wt in worktimes_nohours:
+        all_day = (
+            wt_qs.filter_by(day=wt.day)
+            .with_entities(func.sum(Worktime.hours))
+            .first()
+        )
+        all_day = all_day and all_day[0]
+        timeleft = 8 - all_day if all_day else 8
+        day_noh = worktimes_nohours.filter_by(day=wt.day).count()
+        wt.hours = float(timeleft) / day_noh
 
 
 @db_manager.command
@@ -138,4 +156,7 @@ def update_all():
             events = parse_ical(resp.content)
             for event in events:
                 add_event(event, user.id)
+
+        # Tweak no hour days
+        tweak_days(user)
     db.session.commit()
