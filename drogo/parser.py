@@ -42,9 +42,17 @@ def parse_summary(worktime):
 
     project_names = get_projects()
     summary_low = summary.lower()
-    for name in project_names:
+
+    project_names_extended = filter(lambda s: ' ' in s, project_names)
+    project_names_simple = filter(lambda s: ' ' not in s, project_names)
+    for name in project_names_extended:
         if name in summary_low:
             worktime.project = project_names[name]
+            break
+
+    for word in summary_low.split(' '):
+        if word in project_names_simple:
+            worktime.project = project_names[word]
             break
 
     return worktime
