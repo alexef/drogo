@@ -1,0 +1,22 @@
+{% extends 'user/user.html' %}
+{% from '_macros.html' import flag_format %}
+
+{% block tablecontent %}
+  <table>
+    {% for day, wts in data %}
+      <tr>
+        <td>
+          <strong>{{ day.strftime("%d") }}</strong>
+          <ul>
+            {% for wt in wts %}
+              <li title="{{ wt.details }}" {{ flag_format(wt.project) }}>
+                {{ wt.project or '?' }}
+                {% if wt.hours != 8 %}{{ wt.hours or '-' }}{% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

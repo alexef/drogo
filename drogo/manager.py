@@ -132,19 +132,27 @@ def list_project(slug):
 
 
 @work_manager.command
-def project(slug, alias=None):
+def project(slug, alias=None, holiday=None, unpaid=None):
     proj_obj = Project.query.filter_by(slug=slug).first() or Project(slug=slug)
     db.session.add(proj_obj)
-    db.session.commit()
 
     if alias is not None:
         proj_obj.add_alias(alias)
+
+    if holiday:
+        proj_obj.holiday = holiday == 'True'
+
+    if unpaid:
+        proj_obj.unpaid = unpaid == 'True'
+
+    db.session.commit()
 
 
 @work_manager.command
 def update_all():
     """ Update all user calendars """
-    for user in User.query.all():
+    all_users = User.query.all()
+    for user in all_users:
         if not user.calendar_url:
             continue
 
@@ -153,10 +161,13 @@ def update_all():
             print "Failed to get calendar feed. (response: {0}".format(
                 resp.status_code)
         else:
+            print "Fetched", user.calendar_url
             events = parse_ical(resp.content)
             for event in events:
                 add_event(event, user.id)
 
-        # Tweak no hour days
+    db.session.commit()
+
+    for user in all_users:
         tweak_days(user)
     db.session.commit()

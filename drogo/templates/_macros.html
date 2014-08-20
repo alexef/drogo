@@ -16,7 +16,7 @@
 {% macro worktimes_table(worktimes, user=False) %}
   <table class="table">
     {% for wt in worktimes %}
-      <tr>
+      <tr {{ flag_format(wt.project) }}>
         <td>{{ wt.day }}</td>
         <td>
           {% if not user %}
@@ -31,4 +31,12 @@
       </tr>
     {% endfor %}
   </table>
+{% endmacro %}
+
+{% macro flag_format(project) %}
+class="
+  {%- if project.holiday %}bg-warning{% endif %}
+  {%- if not project %}bg-danger{% endif %}
+  {%- if project.unpaid %}bg-success{% endif -%}
+"
 {% endmacro %}

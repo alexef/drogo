@@ -1,0 +1,65 @@
+{% extends 'layout.html' %}
+{% from '_macros.html' import breadcrumbs, worktimes_table %}
+
+{% block breadcrumbs %}
+  {{ breadcrumbs([
+      (url_for('.homepage'), 'Start'),
+      (url_for('.users'), 'Users'),
+      (None, user.full_name or 'Please select'),
+     ]) }}
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-2">
+      <ul class="nav nav-pills nav-stacked">
+        {% for u in users %}
+          <li {{ active('user/%s' % (u.id)) }}
+              ><a href="{{ url_for('.user', user_id=u.id) }}">{{ u }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    {% if not user %}
+      <div class="col-sm-10">
+        <p class="lead">Please select an user from the left</p>
+      </div>
+    {% else %}
+      <div class="col-sm-8">
+        {% if month %}
+          <p class="lead">Work for the month: {{ month }}. Total: {{ total }}
+            hours</p>
+        {% else %}
+          <p class="lead">Last worktimes:</p>
+        {% endif %}
+
+        <ul class="nav nav-tabs" role="tablist">
+          <li {{ active('/overview') }}><a
+              href="{{ url_for('.user-overview', user_id=user.id, month=month) }}">Overview</a>
+          </li>
+          <li {{ active('/summary') }}><a
+              href="{{ url_for('.user-summary', user_id=user.id, month=month) }}">Summary</a>
+          </li>
+          <li {{ active('/listing') }}><a
+              href="{{ url_for('.user', user_id=user.id, month=month) }}">Listing</a>
+          </li>
+        </ul>
+
+        {% block tablecontent %}
+          {{ worktimes_table(worktimes) }}
+        {% endblock %}
+      </div>
+
+      <div class="col-sm-2">
+        <ul class="nav nav-pills">
+          {% for m in user.months %}
+            <li {{ active('?month=%s' % m, m == month) }}><a
+                href="{{ url_for(endpoint, user_id=user.id, month=m) }}">{{ m }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -1,5 +1,5 @@
 from flask.ext.sqlalchemy import SQLAlchemy
-from sqlalchemy import String, DateTime, Date, Float, Integer, func
+from sqlalchemy import String, DateTime, Date, Float, Integer, func, Boolean
 from sqlalchemy.orm import relationship, backref
 
 
@@ -34,7 +34,6 @@ class User(db.Model):
             .filter_by(user=self)
             .filter(func.strftime('%Y-%m', Worktime.day) == month)
             .order_by(Worktime.day.desc())
-            .all()
         )
 
     def __unicode__(self):
@@ -45,6 +44,8 @@ class Project(db.Model):
     __tablename__ = 'project'
     id = db.Column(Integer, primary_key=True)
     slug = db.Column(String(64), unique=True)
+    holiday = db.Column(Boolean, default=False)
+    unpaid = db.Column(Boolean, default=False)
 
     def add_alias(self, alias_slug):
         alias = ProjectAltName(slug=alias_slug, project=self)

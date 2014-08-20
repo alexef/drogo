@@ -1,11 +1,12 @@
 from datetime import datetime
+import logging
 from icalendar import Calendar
 import re
 from drogo.models import get_projects
 from drogo.utils import naive
 
 
-def parse_summary(summary):
+def parse_summary_text(summary):
     info = {}
     hours = re.findall(r'([0-9]+\.?[0-9]*)\ *[oh][rae]*', summary)
     if hours:
@@ -17,7 +18,7 @@ def parse_summary(summary):
 
 def parse_event(component):
     try:
-        info = parse_summary(unicode(component['summary']))
+        info = parse_summary_text(unicode(component['summary']))
         return {
             'modified': naive(component['last-modified'].dt),
             'start': naive(component['dtstart'].dt),
@@ -26,7 +27,8 @@ def parse_event(component):
             'uid': component['uid'],
             'hours': info['hours'],
         }
-    except:
+    except Exception as e:
+        logging.exception(e)
         return {}
 
 
