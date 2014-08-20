@@ -33,10 +33,30 @@
   </table>
 {% endmacro %}
 
+
 {% macro flag_format(project) %}
-class="
+  class="
   {%- if project.holiday %}bg-warning{% endif %}
   {%- if not project %}bg-danger{% endif %}
   {%- if project.unpaid %}bg-success{% endif -%}
-"
+  "
+{% endmacro %}
+
+
+{% macro full_format(wts, curday) %}
+  {% if wts and wts.count() == 1 and wts[0].hours == 8 %}
+    {{ flag_format(wts[0].project) }}
+  {% endif %}
+  {% if curday in (5, 6) %}
+    class="bg-success"
+  {% endif %}
+{% endmacro %}
+
+
+{% macro hours(h) %}
+  {% if h > 100 %}
+    {{ h|round|int }}
+  {% else %}
+    {{ '%.2g' % h or '-' }}
+  {% endif %}
 {% endmacro %}

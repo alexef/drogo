@@ -9,12 +9,13 @@ def get_last_week():
 
 def absolute(dt):
     if dt.tzinfo is None:
-        return pytz.utc.localize(dt)
+        tz = pytz.timezone('Europe/Bucharest')
+        return tz.localize(dt)
     return dt
 
 
 def naive(dt):
     if isinstance(dt, datetime):
         dt = absolute(dt)
-        return dt.replace(tzinfo=None)
+        dt = dt.replace(tzinfo=None)
     return dt

@@ -1,5 +1,5 @@
 {% extends 'layout.html' %}
-{% from '_macros.html' import breadcrumbs, worktimes_table %}
+{% from '_macros.html' import breadcrumbs, worktimes_table, hours %}
 
 {% block breadcrumbs %}
   {{ breadcrumbs([
@@ -15,7 +15,7 @@
       <ul class="nav nav-pills nav-stacked">
         {% for u in users %}
           <li {{ active('user/%s' % (u.id)) }}
-              ><a href="{{ url_for('.user', user_id=u.id) }}">{{ u }}</a>
+              ><a href="{{ url_for('.user-overview', user_id=u.id) }}">{{ u }}</a>
           </li>
         {% endfor %}
       </ul>
@@ -28,8 +28,9 @@
     {% else %}
       <div class="col-sm-8">
         {% if month %}
-          <p class="lead">Work for the month: {{ month }}. Total: {{ total }}
-            hours</p>
+          <p class="lead">Work for the month: {{ month }}.
+            Total: {{ hours(total) }} hours, {{ hours(days_computed) }} days
+          </p>
         {% else %}
           <p class="lead">Last worktimes:</p>
         {% endif %}

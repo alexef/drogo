@@ -1,5 +1,5 @@
 {% extends 'user/user.html' %}
-{% from '_macros.html' import flag_format %}
+{% from '_macros.html' import flag_format, hours %}
 
 {% block tablecontent %}
   <table class="table">
@@ -11,8 +11,8 @@
     {% for row in data %}
       <tr {{ flag_format(row[0]) }}>
         <td>{{ row[0] or '?'}}</td>
-        <td>{{ row[1] }}</td>
-        <td>{{ row[1]/8 }}</td>
+        <td>{{ hours(row[1]) }}</td>
+        <td>{{ hours(row[1]/8) }}</td>
       </tr>
     {% endfor %}
   </table>

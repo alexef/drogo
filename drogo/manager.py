@@ -48,10 +48,14 @@ def tweak_days(user):
     """ Add days for events without hour information.
     """
     wt_qs = Worktime.query.filter_by(user=user)
-    worktimes_nohours = wt_qs.filter_by(hours=None)
+    worktimes_nohours = wt_qs.filter(Worktime.event.has(hours=None))
+    for wt in worktimes_nohours:
+        wt.hours = wt.event.hours
+    db.session.commit()
     for wt in worktimes_nohours:
         all_day = (
-            wt_qs.filter_by(day=wt.day)
+            wt_qs
+            .filter_by(day=wt.day)
             .with_entities(func.sum(Worktime.hours))
             .first()
         )

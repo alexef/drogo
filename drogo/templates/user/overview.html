@@ -1,16 +1,16 @@
 {% extends 'user/user.html' %}
-{% from '_macros.html' import flag_format %}
+{% from '_macros.html' import flag_format, full_format %}
 
 {% block tablecontent %}
-  <table class="table table-bordered">
+  <table class="table table-bordered" style="table-layout: fixed">
     <tr>
       <th>L</th>
       <th>M</th>
       <th>M</th>
       <th>J</th>
       <th>V</th>
-      <th>S</th>
-      <th>D</th>
+      <th width="10%">S</th>
+      <th width="10%">D</th>
     </tr>
     {% if curday > 0 %}
       <tr>
@@ -20,21 +20,32 @@
       {% if curday == 0 %}
         <tr>
       {% endif %}
-      <td>
+
+      {% if i in data %}
+      <td {{ full_format(data[i], curday) }}>
         <span class="text-muted pull-right">{{ i }}.</span>
         <br/>
-        {% if i in data %}
-          {% set wts = data[i] %}
-          <ul class="list-unstyled">
-            {% for wt in wts %}
-              <li title="{{ wt.details }}" {{ flag_format(wt.project) }}>
-                {{ wt.project or '?' }}
-                {% if wt.hours != 8 %}{{ wt.hours or '-' }}{% endif %}
-              </li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      {% if curday == 6 %}</tr>{% set curday=-1 %}{% endif %}
+        {% set wts = data[i] %}
+        <ul class="list-unstyled">
+          {% for wt in wts %}
+            <li title="{{ wt.details }}" {{ flag_format(wt.project) }}>
+              {{ wt.project or '?' }}
+              {% if wt.hours and wt.hours != 8 %}
+                <span class="label label-info pull-right">
+                {{ '%.2g' % wt.hours or '-' }}
+                </span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </td>
+      {% else %}
+      <td {{ full_format([], curday) }}>
+        <span class="text-muted pull-right">{{ i }}.</span>
+      </td>
+      {% endif %}
+
+    {% if curday == 6 %}</tr>{% set curday=-1 %}{% endif %}
       {% set curday=curday+1 %}
     {% endfor %}
   </table>
