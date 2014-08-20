@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from datetime import date
+from datetime import date, datetime, timedelta
 from flask import Blueprint, redirect, url_for, render_template, request
 from flask.views import MethodView
 from sqlalchemy import func
@@ -67,11 +67,19 @@ class UserOverviewView(UserMixin, MethodView):
         context = self.get_context(user_id)
         days = self.worktimes.with_entities(Worktime.day).distinct()
 
-        data = [(d[0], self.worktimes.filter_by(day=d[0])) for d in days]
+        data = dict([(d[0].day, self.worktimes.filter_by(day=d[0])) for d in days])
 
-        total = sum([wt.hours or 0 for wt in self.worktimes])
+        month = datetime.strptime(self.month + '-01', '%Y-%m-%d')
+        if month.month == 12:
+            end_day = 31
+        else:
+            end_day = month.replace(month=month.month + 1) - timedelta(days=1)
+        first_day = int(month.strftime('%w'))
+        end_day = int(end_day.strftime('%d'))
+        curday = (first_day + 6) % 7
         return render_template('user/overview.html',
-                               days=days, data=data,
+                               days=days, data=data, curday=curday,
+                               end_day=end_day,
                                endpoint='views.user-overview',
                                **context)
 
@@ -86,7 +94,6 @@ class UserSummaryView(UserMixin, MethodView):
                 [wt.hours or 0 for wt in self.worktimes.filter_by(project=p)]))
             for p in projects]
 
-        total = sum([wt.hours or 0 for wt in self.worktimes])
         return render_template('user/summary.html', data=data,
                                endpoint='views.user-summary',
                                **context)

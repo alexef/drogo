@@ -2,12 +2,30 @@
 {% from '_macros.html' import flag_format %}
 
 {% block tablecontent %}
-  <table>
-    {% for day, wts in data %}
+  <table class="table table-bordered">
+    <tr>
+      <th>L</th>
+      <th>M</th>
+      <th>M</th>
+      <th>J</th>
+      <th>V</th>
+      <th>S</th>
+      <th>D</th>
+    </tr>
+    {% if curday > 0 %}
       <tr>
-        <td>
-          <strong>{{ day.strftime("%d") }}</strong>
-          <ul>
+      <td colspan="{{ curday }}"></td>
+    {% endif %}
+    {% for i in range(1, end_day + 1) %}
+      {% if curday == 0 %}
+        <tr>
+      {% endif %}
+      <td>
+        <span class="text-muted pull-right">{{ i }}.</span>
+        <br/>
+        {% if i in data %}
+          {% set wts = data[i] %}
+          <ul class="list-unstyled">
             {% for wt in wts %}
               <li title="{{ wt.details }}" {{ flag_format(wt.project) }}>
                 {{ wt.project or '?' }}
@@ -15,8 +33,9 @@
               </li>
             {% endfor %}
           </ul>
-        </td>
-      </tr>
+        {% endif %}
+      {% if curday == 6 %}</tr>{% set curday=-1 %}{% endif %}
+      {% set curday=curday+1 %}
     {% endfor %}
   </table>
 {% endblock %}
