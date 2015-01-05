@@ -1,8 +1,13 @@
 Drogo - A Timesheet Manager
 ===========================
 
+Install dependencies:
+
+    apt-get install libsqlite3-dev
+
 
 Usage:
+
     ./manage.py db init
 
     ./manage.py project <project_name>

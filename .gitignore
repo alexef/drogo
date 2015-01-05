@@ -1,1 +1,4 @@
 instance/
+*.pyc
+.idea
+sandbox
