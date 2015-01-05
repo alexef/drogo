@@ -46,19 +46,18 @@ class UserMixin(object):
         self.worktimes = self.user.month_worktimes(self.month)
 
         total = sum(
-            [wt.hours or 0 for wt in self.worktimes if not wt.project.unpaid])
+            [wt.hours or 0 for wt in self.worktimes if wt.project and not wt.project.unpaid])
         days = 0
         for day in self.worktimes.with_entities(Worktime.day).distinct():
             wts = self.worktimes.filter_by(day=day[0])
             has_free = False
             for wt in wts:
-                if wt.project.holiday or wt.project.unpaid:
+                if wt.project and (wt.project.holiday or wt.project.unpaid):
                     has_free = True
             if not has_free:
                 days += 8
             else:
-                days += sum([wt.hours for wt in wts if
-                             not wt.project.holiday and not wt.project.unpaid])
+                days += sum([wt.hours for wt in wts if (wt.project and (not wt.project.holiday and not wt.project.unpaid))])
 
         return {
             'users': User.query.all(),
@@ -89,7 +88,8 @@ class UserOverviewView(UserMixin, MethodView):
         if month.month == 12:
             end_day = 31
         else:
-            end_day = month.replace(month=month.month + 1) - timedelta(days=1)
+            end_day = month.replace(month=month.month + 1) - timedelta(
+                days=1)
         first_day = int(month.strftime('%w'))
         end_day = int(end_day.strftime('%d'))
         curday = (first_day + 6) % 7
@@ -107,10 +107,12 @@ class UserSummaryView(UserMixin, MethodView):
         projects = set([wt.project for wt in self.worktimes])
         data = [
             (p, sum(
-                [wt.hours or 0 for wt in self.worktimes.filter_by(project=p)]))
+                [wt.hours or 0 for wt in
+                 self.worktimes.filter_by(project=p)]))
             for p in projects]
         data.sort(
-            key=lambda s: (s[0] and (s[0].holiday or s[0].unpaid)) or -s[1])
+            key=lambda s: (s[0] and (s[0].holiday or s[0].unpaid)) or -s[
+                1])
 
         return render_template('user/summary.html', data=data,
                                endpoint='views.user-summary',
@@ -131,7 +133,8 @@ views.add_url_rule('/project/<project_id>',
                    view_func=ProjectView.as_view('project'))
 views.add_url_rule('/project/<project_id>/monthly',
                    view_func=ProjectMonthlyView.as_view('project_monthly'))
-views.add_url_rule('/project/all', view_func=ProjectView.as_view('projects'))
+views.add_url_rule('/project/all',
+                   view_func=ProjectView.as_view('projects'))
 views.add_url_rule('/user/all', view_func=UserAll.as_view('users'))
 views.add_url_rule('/user/<user_id>/listing',
                    view_func=UserView.as_view('user'))
