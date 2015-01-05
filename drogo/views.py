@@ -1,9 +1,8 @@
-from collections import OrderedDict
 from datetime import date, datetime, timedelta
-from flask import Blueprint, redirect, url_for, render_template, request
+from flask import Blueprint, render_template, request
 from flask.views import MethodView
-from sqlalchemy import func
 from drogo.models import Project, User, Worktime
+from drogo.utils import get_total_days, get_end_day
 
 views = Blueprint('views', __name__)
 
@@ -45,27 +44,14 @@ class UserMixin(object):
         self.user = User.query.get_or_404(user_id)
         self.worktimes = self.user.month_worktimes(self.month)
 
-        total = sum(
-            [wt.hours or 0 for wt in self.worktimes if wt.project and not wt.project.unpaid])
-        days = 0
-        for day in self.worktimes.with_entities(Worktime.day).distinct():
-            wts = self.worktimes.filter_by(day=day[0])
-            has_free = False
-            for wt in wts:
-                if wt.project and (wt.project.holiday or wt.project.unpaid):
-                    has_free = True
-            if not has_free:
-                days += 8
-            else:
-                days += sum([wt.hours for wt in wts if (wt.project and (not wt.project.holiday and not wt.project.unpaid))])
-
+        total, days_computed = get_total_days()
         return {
             'users': User.query.all(),
             'month': self.month,
             'user': self.user,
             'worktimes': self.worktimes,
             'total': total,
-            'days_computed': days / 8,
+            'days_computed': days_computed,
         }
 
 
@@ -85,11 +71,7 @@ class UserOverviewView(UserMixin, MethodView):
             [(d[0].day, self.worktimes.filter_by(day=d[0])) for d in days])
 
         month = datetime.strptime(self.month + '-01', '%Y-%m-%d')
-        if month.month == 12:
-            end_day = 31
-        else:
-            end_day = month.replace(month=month.month + 1) - timedelta(
-                days=1)
+        end_day = get_end_day(month)
         first_day = int(month.strftime('%w'))
         end_day = int(end_day.strftime('%d'))
         curday = (first_day + 6) % 7
@@ -105,14 +87,8 @@ class UserSummaryView(UserMixin, MethodView):
         context = self.get_context(user_id)
 
         projects = set([wt.project for wt in self.worktimes])
-        data = [
-            (p, sum(
-                [wt.hours or 0 for wt in
-                 self.worktimes.filter_by(project=p)]))
-            for p in projects]
-        data.sort(
-            key=lambda s: (s[0] and (s[0].holiday or s[0].unpaid)) or -s[
-                1])
+        data = [(p, p.hours) for p in projects]
+        data.sort(key=lambda s: (s[0] and s[0].free) or -s[1])
 
         return render_template('user/summary.html', data=data,
                                endpoint='views.user-summary',

@@ -62,6 +62,10 @@ class Project(db.Model):
         )
 
     @property
+    def free(self):
+        return self.holiday or self.unpaid
+
+    @property
     def aliases_list(self):
         return [self.slug] + [a.slug for a in self.aliases]
 
@@ -94,7 +98,7 @@ class Project(db.Model):
             .group_by(func.strftime('%Y-%m', Worktime.day))
             .all()
         )
-        qs.sort(key=lambda a:a[0], reverse=True)
+        qs.sort(key=lambda a: a[0], reverse=True)
         return qs
 
 
@@ -134,6 +138,17 @@ class Worktime(db.Model):
     details = db.Column(String(256))
     event_id = db.Column(db.ForeignKey('event.uid'), nullable=True)
     event = relationship('Event', backref=backref('worktime', uselist=False))
+
+    @property
+    def paid(self):
+        return (
+            self.project and not (self.project.holiday or self.project.unpaid)
+        )
+
+    @property
+    def unpaid(self):
+        return self.project and self.project.unpaid
+
 
 _cached_projects = {}
 
