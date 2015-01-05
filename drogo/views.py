@@ -44,7 +44,7 @@ class UserMixin(object):
         self.user = User.query.get_or_404(user_id)
         self.worktimes = self.user.month_worktimes(self.month)
 
-        total, days_computed = get_total_days()
+        total, days_computed = get_total_days(self.worktimes)
         return {
             'users': User.query.all(),
             'month': self.month,
