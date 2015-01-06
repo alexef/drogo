@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+  <div class="row">
+
+    {% for project in projects %}
+    <div class="col-sm-12">
+      <h3>{{ project.name }}</h3>
+
+      <p>Travis status: {{ project.travis }}</p>
+    </div>
+    {% endfor %}
+  </div>
+{% endblock %}

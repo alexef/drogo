@@ -46,6 +46,7 @@ class Project(db.Model):
     slug = db.Column(String(64), unique=True)
     holiday = db.Column(Boolean, default=False)
     unpaid = db.Column(Boolean, default=False)
+    github_slug = db.Column(String(256))
 
     def add_alias(self, alias_slug):
         alias = ProjectAltName(slug=alias_slug, project=self)

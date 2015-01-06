@@ -4,6 +4,7 @@ Flask-Script==2.0.5
 Jinja2==2.7.3
 MarkupSafe==0.23
 SQLAlchemy==0.9.7
+TravisPy==0.3.3
 Werkzeug==0.9.6
 icalendar==3.8.2
 itsdangerous==0.24

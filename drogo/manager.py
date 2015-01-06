@@ -136,8 +136,9 @@ def list_project(slug):
 
 
 @work_manager.command
-def project(slug, alias=None, holiday=None, unpaid=None):
+def project(slug, alias=None, holiday=None, unpaid=None, github_slug=''):
     proj_obj = Project.query.filter_by(slug=slug).first() or Project(slug=slug)
+    proj_obj.github_slug = github_slug
     db.session.add(proj_obj)
 
     if alias is not None:

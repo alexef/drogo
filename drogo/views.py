@@ -1,6 +1,7 @@
-from datetime import date, datetime, timedelta
-from flask import Blueprint, render_template, request
+from datetime import date, datetime
+from flask import Blueprint, render_template, request, current_app
 from flask.views import MethodView
+from travispy import TravisPy
 from drogo.models import Project, User, Worktime
 from drogo.utils import get_total_days, get_end_day
 
@@ -11,6 +12,18 @@ class Homepage(MethodView):
     def get(self):
         return render_template('homepage.html', users=User.query.count(),
                                projects=Project.query.count())
+
+
+class Dashboard(MethodView):
+    def get(self):
+        projects = list(Project.query.all())
+        travis = TravisPy.github_auth(current_app.config['TRAVIS_API_KEY'])
+        for p in projects:
+            if p.github_slug:
+                p.travis = travis.repo(p.github_slug)
+            else:
+                p.travis = {}
+        return render_template('dashboard.html', projects=Project.query.all())
 
 
 class ProjectView(MethodView):
@@ -105,6 +118,7 @@ def active(text, force=False):
 
 # urls.py
 views.add_url_rule('/', view_func=Homepage.as_view('homepage'))
+views.add_url_rule('/dashboard', view_func=Dashboard.as_view('dashboard'))
 views.add_url_rule('/project/<project_id>',
                    view_func=ProjectView.as_view('project'))
 views.add_url_rule('/project/<project_id>/monthly',
