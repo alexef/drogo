@@ -52,6 +52,10 @@ class UserAll(MethodView):
 
 
 class UserMixin(object):
+    def get_hours(self, project):
+        return sum([wt.hours or 0 for wt in
+                    self.worktimes if wt.project == project])
+
     def get_context(self, user_id):
         self.month = request.args.get('month', date.today().strftime("%Y-%m"))
         self.user = User.query.get_or_404(user_id)
@@ -99,7 +103,7 @@ class UserSummaryView(UserMixin, MethodView):
         context = self.get_context(user_id)
 
         projects = set([wt.project for wt in self.worktimes if wt.project])
-        data = [(p, p.hours) for p in projects]
+        data = [(p, self.get_hours(p)) for p in projects]
         data.sort(key=lambda s: (s[0] and s[0].free) or -s[1])
 
         return render_template('user/summary.html', data=data,
