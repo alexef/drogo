@@ -16,7 +16,7 @@ serverurl = unix://%(here)s/instance/supervisor.sock
 
 [program:drogo]
 directory=%(here)s/
-command=%(here)s/env/bin/waitress-serve --call fcs.app:create_app --port 5001
+command=%(here)s/env/bin/waitress-serve --port 5001 --call fcs.app:create_app
 environment=PYTHONPATH=%(here)s/env/
 redirect_stderr = true
 stdout_logfile = %(here)s/instance/%(program_name)s.log
