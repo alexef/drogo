@@ -28,7 +28,7 @@ def get_distinct_days(wt_qs):
 
 def get_total_days(worktimes):
     total = sum(
-        [wt.hours or 0 for wt in worktimes if not wt.unpaid])
+        [wt.hours or 0 for wt in worktimes if wt.paid])
     hours = 0
     distinct_days = get_distinct_days(worktimes)
     for day in distinct_days:
@@ -40,7 +40,7 @@ def get_total_days(worktimes):
         if not has_free:
             hours += 8
         else:
-            hours += sum([wt.hours for wt in wts if wt.paid])
+            hours += sum([wt.hours or 0 for wt in wts if wt.paid])
 
     return total, hours / 8
 
