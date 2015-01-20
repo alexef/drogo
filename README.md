@@ -16,3 +16,7 @@ Usage:
 
     ./manage.py work list_all
 
+Crontab:
+
+    ./manage.py update_all
+

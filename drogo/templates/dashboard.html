@@ -4,11 +4,33 @@
   <div class="row">
 
     {% for project in projects %}
-    <div class="col-sm-12">
-      <h3>{{ project.name }}</h3>
+      <div class="col-sm-3">
+        <div class="well">
+          <h3><a
+              href="{{ url_for('.project', project_id=project.id) }}">{{ project.slug }}</a>
+          </h3>
 
-      <p>Travis status: {{ project.travis }}</p>
-    </div>
+          {% if project.travis %}
+            <p>Build:
+        <span
+            class="label label-{% if project.travis.last_build_state == 'passed' %}success{% else %}danger{% endif %}">
+          {{ project.travis.last_build_state or 'n/a' }}
+        </span>
+            </p>
+            <p>Last
+              build:
+              <a href="https://travis-ci.org/{{ project.github_slug }}"
+                 target="_blank">
+                {{ project.travis.last_build_finished_at or '-' }}
+              </a>
+            </p>
+          {% endif %}
+          {% if project.github_slug %}
+            <p>Repo: <a href="https://github.com/{{ project.github_slug }}"
+                        target="_blank">GitHub</a></p>
+          {% endif %}
+        </div>
+      </div>
     {% endfor %}
   </div>
 {% endblock %}

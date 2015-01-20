@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import pytz
-from drogo.models import Worktime
+from drogo.models import Worktime, Project
 
 
 def get_last_week():
@@ -48,4 +48,9 @@ def get_total_days(worktimes):
 def get_end_day(month):
     if month.month == 12:
         return 31
-    return month.replace(month=month.month + 1) - timedelta(days=1)
+    day = month.replace(month=month.month + 1) - timedelta(days=1)
+    return int(day.strftime('%d'))
+
+
+def get_all_projects():
+    return Project.query.filter_by(holiday=False, unpaid=False)
