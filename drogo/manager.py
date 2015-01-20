@@ -40,7 +40,6 @@ def add_event(event, userid):
     )
     parse_summary(work_time_obj)
     db.session.add(work_time_obj)
-    print u"Added {0}".format(work_time_obj.details)
     return event_obj
 
 

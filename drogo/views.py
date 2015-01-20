@@ -98,7 +98,7 @@ class UserSummaryView(UserMixin, MethodView):
     def get(self, user_id):
         context = self.get_context(user_id)
 
-        projects = set([wt.project for wt in self.worktimes])
+        projects = set([wt.project for wt in self.worktimes if wt.project])
         data = [(p, p.hours) for p in projects]
         data.sort(key=lambda s: (s[0] and s[0].free) or -s[1])
 
