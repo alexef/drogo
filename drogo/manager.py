@@ -67,7 +67,8 @@ def tweak_days(user):
 @db_manager.command
 def init():
     db.create_all()
-    db.session.add(User(id=1))
+    if not User.query.first():
+        db.session.add(User(id=1))
     db.session.commit()
 
 

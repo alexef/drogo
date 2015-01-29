@@ -151,6 +151,17 @@ class Worktime(db.Model):
         return self.project and self.project.unpaid
 
 
+class Ticket(db.Model):
+    __tablename__ = 'ticket'
+    id = db.Column(Integer, primary_key=True)
+
+    number = db.Column(db.String(256))
+    worktime_id = db.Column(db.ForeignKey('worktime.id'))
+    worktime = relationship('Worktime')
+    project_id = db.Column(db.ForeignKey('project.id'))
+    project = relationship('Project')
+
+
 _cached_projects = {}
 
 
