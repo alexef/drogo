@@ -9,12 +9,12 @@
       <th>Hours</th>
       <th>Days</th>
     </tr>
-    {% for project, hours, ts in data %}
+    {% for project, h, ts in data %}
       <tr {{ flag_format(project) }}>
         <td>{{ project or '?' }}</td>
         <td>{{ tickets(ts) }}</td>
-        <td>{{ hours(hours) }}</td>
-        <td>{{ hours(hours/8) }}</td>
+        <td>{{ hours(h) }}</td>
+        <td>{{ hours(h/8) }}</td>
       </tr>
     {% endfor %}
   </table>
