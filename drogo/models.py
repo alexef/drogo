@@ -102,7 +102,6 @@ class Project(db.Model):
         qs.sort(key=lambda a: a[0], reverse=True)
         return qs
 
-
     def __unicode__(self):
         return self.slug
 
@@ -156,10 +155,16 @@ class Ticket(db.Model):
     id = db.Column(Integer, primary_key=True)
 
     number = db.Column(db.String(256))
-    worktime_id = db.Column(db.ForeignKey('worktime.id'))
-    worktime = relationship('Worktime', backref='tickets')
     project_id = db.Column(db.ForeignKey('project.id'))
     project = relationship('Project')
+
+
+class TicketWorktime(db.Model):
+    __tablename__ = 'ticket_worktime'
+    ticket_id = db.Column(db.ForeignKey('ticket.id'), primary_key=True)
+    ticket = relationship('Ticket', backref='worktimes')
+    worktime_id = db.Column(db.ForeignKey('worktime.id'), primary_key=True)
+    worktime = relationship('Worktime', backref='tickets')
 
 
 _cached_projects = {}

@@ -3,7 +3,7 @@ from flask.ext.script import Manager
 import requests
 from sqlalchemy import func
 from drogo.models import db, Event, Worktime, User, Project, get_projects, \
-    Ticket
+    Ticket, TicketWorktime
 from drogo.parser import parse_ical, parse_summary
 from drogo.utils import get_last_week, absolute
 
@@ -45,12 +45,16 @@ def add_event(event, userid):
         for ticket in tickets:
             ticket_obj = (
                 Ticket.query.filter_by(number=ticket,
-                                       project=work_time_obj.project,
-                                       worktime=work_time_obj).first()
-                or Ticket(number=ticket, project=work_time_obj.project,
-                          worktime=work_time_obj)
+                                       project=work_time_obj.project).first()
+                or Ticket(number=ticket, project=work_time_obj.project)
             )
             db.session.add(ticket_obj)
+            t_wt_obj = (
+                TicketWorktime.query.filter_by(ticket=ticket_obj,
+                                               worktime=work_time_obj).first()
+                or TicketWorktime(ticket=ticket_obj, worktime=work_time_obj)
+            )
+            db.session.add(t_wt_obj)
     db.session.add(work_time_obj)
     return event_obj
 

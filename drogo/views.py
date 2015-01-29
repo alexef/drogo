@@ -60,7 +60,7 @@ class UserMixin(object):
         tickets = []
         for wt in self.worktimes:
             if wt.project == project:
-                tickets += list(wt.tickets)
+                tickets += [tw.ticket for tw in wt.tickets]
         return set(tickets)
 
     def get_context(self, user_id):
