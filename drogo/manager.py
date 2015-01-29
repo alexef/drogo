@@ -2,7 +2,8 @@ from datetime import datetime
 from flask.ext.script import Manager
 import requests
 from sqlalchemy import func
-from drogo.models import db, Event, Worktime, User, Project, get_projects
+from drogo.models import db, Event, Worktime, User, Project, get_projects, \
+    Ticket
 from drogo.parser import parse_ical, parse_summary
 from drogo.utils import get_last_week, absolute
 
@@ -25,6 +26,7 @@ def add_event(event, userid):
     if not event:
         return
 
+    tickets = event.pop('tickets')
     event_obj = (
         Event.query.filter_by(uid=event['uid']).first() or Event(**event)
     )
@@ -39,6 +41,16 @@ def add_event(event, userid):
         event_obj.worktime or Worktime(event=event_obj, user_id=userid)
     )
     parse_summary(work_time_obj)
+    if work_time_obj.project:
+        for ticket in tickets:
+            ticket_obj = (
+                Ticket.query.filter_by(number=ticket,
+                                       project=work_time_obj.project,
+                                       worktime=work_time_obj).first()
+                or Ticket(number=ticket, project=work_time_obj.project,
+                          worktime=work_time_obj)
+            )
+            db.session.add(ticket_obj)
     db.session.add(work_time_obj)
     return event_obj
 

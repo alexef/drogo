@@ -157,7 +157,7 @@ class Ticket(db.Model):
 
     number = db.Column(db.String(256))
     worktime_id = db.Column(db.ForeignKey('worktime.id'))
-    worktime = relationship('Worktime')
+    worktime = relationship('Worktime', backref='tickets')
     project_id = db.Column(db.ForeignKey('project.id'))
     project = relationship('Project')
 

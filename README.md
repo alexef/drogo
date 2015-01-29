@@ -18,5 +18,5 @@ Usage:
 
 Crontab:
 
-    ./manage.py update_all
+    ./manage.py work update_all
 

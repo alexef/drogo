@@ -13,6 +13,7 @@ def parse_summary_text(summary):
         info['hours'] = float(hours[0])
     else:
         info['hours'] = None
+    info['tickets'] = re.findall(r'(#[0-9]+)', summary)
     return info
 
 
@@ -26,6 +27,7 @@ def parse_event(component):
             'summary': unicode(component['summary']),
             'uid': component['uid'],
             'hours': info['hours'],
+            'tickets': info['tickets'],
         }
     except Exception as e:
         logging.exception(e)
@@ -40,6 +42,8 @@ def parse_ical(ical_text):
 
 
 def parse_summary(worktime):
+    """ Update a worktime with data from its summary
+    """
     if not worktime.event:
         return worktime
     summary = worktime.event.summary

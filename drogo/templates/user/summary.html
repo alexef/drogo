@@ -5,12 +5,18 @@
   <table class="table">
     <tr>
       <th>Project</th>
+      <th>Tickets</th>
       <th>Hours</th>
       <th>Days</th>
     </tr>
     {% for row in data %}
       <tr {{ flag_format(row[0]) }}>
-        <td>{{ row[0] or '?'}}</td>
+        <td>{{ row[0] or '?' }}</td>
+        <td>
+          {% for t in row[2] %}
+            {{ t.number }}
+          {% endfor %}
+        </td>
         <td>{{ hours(row[1]) }}</td>
         <td>{{ hours(row[1]/8) }}</td>
       </tr>
