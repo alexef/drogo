@@ -52,6 +52,9 @@ class UserAll(MethodView):
 
 
 class UserMixin(object):
+    def get_times(self, day):
+        return [wt for wt in self.worktimes if wt.day == day]
+
     def get_hours(self, project):
         return sum([wt.hours or 0 for wt in
                     self.worktimes if wt.project == project])
@@ -84,6 +87,30 @@ class UserView(UserMixin, MethodView):
         context = self.get_context(user_id)
         return render_template('user/user.html',
                                endpoint='views.user', **context)
+
+
+class PerdayView(UserView):
+    def get(self, user_id):
+        context = self.get_context(user_id)
+        days = set([wt.day for wt in self.worktimes])
+        days_data = []
+        for day in days:
+            day_data = {}
+            wts = self.get_times(day)
+            for wt in wts:
+                if not wt.project or wt.project.unpaid:
+                    continue
+                day_data.setdefault(wt.project, {'hours': 0, 'tickets': []})
+                day_data[wt.project]['hours'] += wt.hours
+                day_data[wt.project]['tickets'] += [
+                    t.ticket for t in wt.tickets
+                ]
+            if day_data:
+                days_data.append({'day': day, 'projects': day_data})
+        days_data.sort(key=lambda s: s['day'])
+        return render_template('user/perday.html',
+                               endpoint='views.user', days=days_data,
+                               **context)
 
 
 class UserOverviewView(UserMixin, MethodView):
@@ -142,4 +169,6 @@ views.add_url_rule('/user/<user_id>/overview',
                    view_func=UserOverviewView.as_view('user-overview'))
 views.add_url_rule('/user/<user_id>/summary',
                    view_func=UserSummaryView.as_view('user-summary'))
+views.add_url_rule('/user/<user_id>/perday',
+                   view_func=PerdayView.as_view('perday'))
 

@@ -45,6 +45,9 @@
           <li {{ active('/listing') }}><a
               href="{{ url_for('.user', user_id=user.id, month=month) }}">Listing</a>
           </li>
+          <li {{ active('/perday') }}><a
+              href="{{ url_for('.perday', user_id=user.id, month=month) }}">Per day</a>
+          </li>
         </ul>
 
         {% block tablecontent %}

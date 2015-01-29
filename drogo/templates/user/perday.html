@@ -1,0 +1,23 @@
+{% extends 'user/user.html' %}
+{% from '_macros.html' import flag_format, full_format, tickets %}
+
+{% block tablecontent %}
+  <table class="table">
+    <tr>
+      <th>Day</th>
+      <th>Hours</th>
+      <th>Project</th>
+      <th>Tickets</th>
+    </tr>
+    {% for day in days %}
+      {% for project, wt in day.projects.iteritems() %}
+        <tr>
+          <td>{{ day.day }}</td>
+          <td>{{ wt.hours }}</td>
+          <td>{{ project }}</td>
+          <td>{{ tickets(wt.tickets) }}</td>
+        </tr>
+      {% endfor %}
+    {% endfor %}
+  </table>
+{% endblock %}

@@ -60,3 +60,10 @@
     {{ '%.2g' % h or '-' }}
   {% endif %}
 {% endmacro %}
+
+
+{% macro tickets(ts) %}
+  {% for t in ts %}
+    {{ t.number }}
+  {% endfor %}
+{% endmacro %}
