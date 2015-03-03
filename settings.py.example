@@ -1,0 +1,11 @@
+DEBUG = False
+SQLALCHEMY_DATABASE_URI = 'sqlite:///../instance/data.db'
+
+TRAVIS_API_KEY = ''
+
+SENTRY_DSN = ''
+
+PRIVATE_KEY = 'no to secret key'
+
+LDAPSRV = 'nas.edw.ro'
+BASEDN = 'cn=users,dc=edw,dc=lan'

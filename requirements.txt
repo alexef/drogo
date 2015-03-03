@@ -12,3 +12,6 @@ pysqlite==2.6.3
 pytz==2014.4
 requests==2.3.0
 wsgiref==0.1.2
+raven==5.2.0
+simpleldap==0.8
+wtforms==2.0.2

@@ -1,9 +1,14 @@
 from datetime import date, datetime
-from flask import Blueprint, render_template, request, current_app
+from flask import Blueprint, current_app
 from flask.views import MethodView
+from flask import render_template, request, redirect, flash, url_for, session
+from flask.ext.login import login_user, login_required, logout_user
 from travispy import TravisPy
 from drogo.models import Project, User, Worktime
 from drogo.utils import get_total_days, get_end_day, get_all_projects
+from drogo.forms import LoginForm
+from drogo.auth import LdapUser
+
 
 views = Blueprint('views', __name__)
 
@@ -15,6 +20,7 @@ class Homepage(MethodView):
 
 
 class Dashboard(MethodView):
+    @login_required
     def get(self):
         projects = list(get_all_projects())
         travis = TravisPy.github_auth(current_app.config['TRAVIS_API_KEY'])
@@ -27,6 +33,7 @@ class Dashboard(MethodView):
 
 
 class ProjectView(MethodView):
+    @login_required
     def get(self, project_id=None):
         project = project_id and Project.query.get(project_id)
         projects = Project.query.order_by(Project.slug)
@@ -35,6 +42,7 @@ class ProjectView(MethodView):
 
 
 class ProjectMonthlyView(MethodView):
+    @login_required
     def get(self, project_id):
         project = Project.query.get_or_404(project_id)
         projects = Project.query.order_by(Project.slug)
@@ -46,6 +54,7 @@ class ProjectMonthlyView(MethodView):
 
 
 class UserAll(MethodView):
+    @login_required
     def get(self):
         return render_template('user/user.html', user=None,
                                users=User.query.all())
@@ -66,6 +75,7 @@ class UserMixin(object):
                 tickets += [tw.ticket for tw in wt.tickets]
         return set(tickets)
 
+    @login_required
     def get_context(self, user_id):
         self.month = request.args.get('month', date.today().strftime("%Y-%m"))
         self.user = User.query.get_or_404(user_id)
@@ -83,6 +93,7 @@ class UserMixin(object):
 
 
 class UserView(UserMixin, MethodView):
+    @login_required
     def get(self, user_id):
         context = self.get_context(user_id)
         return render_template('user/user.html',
@@ -90,6 +101,7 @@ class UserView(UserMixin, MethodView):
 
 
 class PerdayView(UserView):
+    @login_required
     def get(self, user_id):
         context = self.get_context(user_id)
         days = set([wt.day for wt in self.worktimes])
@@ -114,6 +126,7 @@ class PerdayView(UserView):
 
 
 class UserOverviewView(UserMixin, MethodView):
+    @login_required
     def get(self, user_id):
         context = self.get_context(user_id)
         days = self.worktimes.with_entities(Worktime.day).distinct()
@@ -133,6 +146,7 @@ class UserOverviewView(UserMixin, MethodView):
 
 
 class UserSummaryView(UserMixin, MethodView):
+    @login_required
     def get(self, user_id):
         context = self.get_context(user_id)
 
@@ -144,13 +158,33 @@ class UserSummaryView(UserMixin, MethodView):
                                endpoint='views.user-summary',
                                **context)
 
-
 # utils
 @views.add_app_template_global
 def active(text, force=False):
     if text in request.url or force:
         return 'class=active'
     return ''
+
+
+#login misc
+def login():
+    form = LoginForm(request.form)
+    if request.method == 'POST':
+        if form.validate():
+            user = LdapUser(name=form.username.data, passwd=form.password.data)
+            if user.active is not False:
+                login_user(user)
+                session['name'] = user.name
+                return redirect(url_for('.homepage'))
+        else:
+            flash("Username or password incorrect :(")
+    return render_template("login.html", form=form)
+
+
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('.homepage'))
 
 
 # urls.py
@@ -171,4 +205,5 @@ views.add_url_rule('/user/<user_id>/summary',
                    view_func=UserSummaryView.as_view('user-summary'))
 views.add_url_rule('/user/<user_id>/perday',
                    view_func=PerdayView.as_view('perday'))
-
+views.add_url_rule('/login', view_func=login, methods=['GET', 'POST'])
+views.add_url_rule('/logout', view_func=logout)

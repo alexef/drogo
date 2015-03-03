@@ -6,6 +6,13 @@ Install dependencies:
     apt-get install libsqlite3-dev
 
 
+Initial setup:
+
+    mkdir instance
+    cp settings.py.example instance/settings.py
+
+then edit instance/settings.py to suit your needs.
+
 Usage:
 
     ./manage.py db init

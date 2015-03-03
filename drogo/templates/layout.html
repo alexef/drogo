@@ -30,6 +30,13 @@
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
       </div>
+      <div class=metanav align="right">
+        {% if not session.user_id %}
+          <a href="{{ url_for('.login') }}">log in</a>
+        {% else %}
+          Hi <b>{{ session.name }}</b>, <a href="{{ url_for('.logout') }}">not you?</a>
+        {% endif %}
+      </div>
 
       {% block breadcrumbs %}
       {% endblock %}
@@ -37,6 +44,15 @@
       {% block content %}
       {% endblock %}
     </div> <!-- /container -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for message in messages %}
+          {{ message }}
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
 
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
