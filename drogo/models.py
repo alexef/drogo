@@ -9,6 +9,10 @@ db = SQLAlchemy()
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(Integer, primary_key=True)
+    ldap_uid = db.Column(Integer)
+    ldap_gid = db.Column(Integer)
+    ldap_name = db.Column(String(128))
+    active = db.Column(Boolean)
     full_name = db.Column(String(128))
     calendar_url = db.Column(String(128))
 
@@ -38,6 +42,18 @@ class User(db.Model):
 
     def __unicode__(self):
         return self.full_name or unicode(self.id)
+
+    def is_active(self):
+        return self.active
+
+    def is_anonymous(self):
+        return False
+
+    def is_authenticated(self):
+        return True
+
+    def get_id(self):
+        return self.id
 
 
 class Project(db.Model):

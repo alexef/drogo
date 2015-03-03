@@ -1,8 +1,8 @@
 from flask import Flask
 from flask.ext.login import LoginManager
-from drogo.models import db
+from flask.ext.principal import Principal
+from drogo.models import db, User
 from drogo.views import views
-from drogo.auth import LdapUser
 
 
 def create_app(config={}):
@@ -23,7 +23,12 @@ def create_app(config={}):
     login_manager = LoginManager()
     @login_manager.user_loader
     def load_user(userid):
-        return LdapUser(uid=userid)
+        try:
+            return User.query.get(userid)
+        except:
+            return None
     login_manager.setup_app(app)
+
+    Principal(app)
 
     return app

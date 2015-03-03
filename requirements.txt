@@ -2,6 +2,7 @@ Flask==0.10.1
 Flask-Login==0.2.11
 Flask-SQLAlchemy==1.0
 Flask-Script==2.0.5
+Flask-Principal==0.4.0
 Jinja2==2.7.3
 MarkupSafe==0.23
 SQLAlchemy==0.9.7
@@ -14,4 +15,4 @@ pytz==2014.4
 requests==2.3.0
 wsgiref==0.1.2
 simpleldap==0.8
-wtforms==2.0.2
+WTForms==2.0.2

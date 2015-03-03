@@ -34,7 +34,7 @@
         {% if not session.user_id %}
           <a href="{{ url_for('.login') }}">log in</a>
         {% else %}
-          Hi <b>{{ session.name }}</b>, <a href="{{ url_for('.logout') }}">not you?</a>
+          Hi <b>{{ current_user.full_name }}</b>, <a href="{{ url_for('.logout') }}">not you?</a>
         {% endif %}
       </div>
 

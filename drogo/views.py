@@ -3,11 +3,13 @@ from flask import Blueprint, current_app
 from flask.views import MethodView
 from flask import render_template, request, redirect, flash, url_for, session
 from flask.ext.login import login_user, login_required, logout_user
+from flask.ext.principal import Principal, Identity, AnonymousIdentity, \
+     identity_changed
 from travispy import TravisPy
 from drogo.models import Project, User, Worktime
 from drogo.utils import get_total_days, get_end_day, get_all_projects
 from drogo.forms import LoginForm
-from drogo.auth import LdapUser
+from drogo.auth import ldap_fetch
 
 
 views = Blueprint('views', __name__)
@@ -56,6 +58,7 @@ class ProjectMonthlyView(MethodView):
 class UserAll(MethodView):
     @login_required
     def get(self):
+        print
         return render_template('user/user.html', user=None,
                                users=User.query.all())
 
@@ -171,11 +174,13 @@ def login():
     form = LoginForm(request.form)
     if request.method == 'POST':
         if form.validate():
-            user = LdapUser(name=form.username.data, passwd=form.password.data)
-            if user.active is not False:
+            user = ldap_fetch(name=form.username.data,
+                              passwd=form.password.data)
+            if user and user.active is not False:
                 login_user(user)
-                session['name'] = user.name
-                return redirect(url_for('.homepage'))
+                identity_changed.send(current_app._get_current_object(),
+                                  identity=Identity(user.id))
+                return redirect(url_for('.user-overview', user_id=user.id))
         else:
             flash("Username or password incorrect :(")
     return render_template("login.html", form=form)
@@ -184,6 +189,11 @@ def login():
 @login_required
 def logout():
     logout_user()
+    #clean session
+    for key in ('identity.name', 'identity.auth_type'):
+        session.pop(key, None)
+    identity_changed.send(current_app._get_current_object(),
+                          identity=AnonymousIdentity())
     return redirect(url_for('.homepage'))
 
 
