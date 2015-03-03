@@ -4,12 +4,13 @@ from flask.views import MethodView
 from flask import render_template, request, redirect, flash, url_for, session
 from flask.ext.login import login_user, login_required, logout_user
 from flask.ext.principal import Principal, Identity, AnonymousIdentity, \
-     identity_changed
+     identity_changed, RoleNeed
 from travispy import TravisPy
 from drogo.models import Project, User, Worktime
 from drogo.utils import get_total_days, get_end_day, get_all_projects
 from drogo.forms import LoginForm
 from drogo.auth import ldap_fetch
+from drogo.permission import admin_permission
 
 
 views = Blueprint('views', __name__)
@@ -23,6 +24,7 @@ class Homepage(MethodView):
 
 class Dashboard(MethodView):
     @login_required
+    @admin_permission.require(403)
     def get(self):
         projects = list(get_all_projects())
         travis = TravisPy.github_auth(current_app.config['TRAVIS_API_KEY'])
@@ -36,6 +38,7 @@ class Dashboard(MethodView):
 
 class ProjectView(MethodView):
     @login_required
+    @admin_permission.require(403)
     def get(self, project_id=None):
         project = project_id and Project.query.get(project_id)
         projects = Project.query.order_by(Project.slug)
@@ -57,8 +60,8 @@ class ProjectMonthlyView(MethodView):
 
 class UserAll(MethodView):
     @login_required
+    @admin_permission.require(403)
     def get(self):
-        print
         return render_template('user/user.html', user=None,
                                users=User.query.all())
 
