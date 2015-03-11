@@ -3,8 +3,9 @@ from flask import Blueprint, current_app
 from flask.views import MethodView
 from flask import render_template, request, redirect, flash, url_for, session
 from flask.ext.login import login_user, login_required, logout_user
-from flask.ext.principal import Principal, Identity, AnonymousIdentity, \
-     identity_changed, RoleNeed
+from flask.ext.principal import (
+    Principal, Identity, AnonymousIdentity, identity_changed, RoleNeed,
+)
 from travispy import TravisPy
 from drogo.models import Project, User, Worktime
 from drogo.utils import get_total_days, get_end_day, get_all_projects
@@ -16,15 +17,20 @@ from drogo.permission import admin_permission
 views = Blueprint('views', __name__)
 
 
+class PermissionMixin(object):
+    @admin_permission.require(403)
+    def dispatch_request(self, *args, **kwargs):
+        super(self, *args, **kwargs)
+
+
 class Homepage(MethodView):
     def get(self):
         return render_template('homepage.html', users=User.query.count(),
                                projects=get_all_projects().count())
 
 
-class Dashboard(MethodView):
+class Dashboard(PermissionMixin, MethodView):
     @login_required
-    @admin_permission.require(403)
     def get(self):
         projects = list(get_all_projects())
         travis = TravisPy.github_auth(current_app.config['TRAVIS_API_KEY'])
@@ -36,9 +42,8 @@ class Dashboard(MethodView):
         return render_template('dashboard.html', projects=projects)
 
 
-class ProjectView(MethodView):
+class ProjectView(PermissionMixin, MethodView):
     @login_required
-    @admin_permission.require(403)
     def get(self, project_id=None):
         project = project_id and Project.query.get(project_id)
         projects = Project.query.order_by(Project.slug)
@@ -58,9 +63,8 @@ class ProjectMonthlyView(MethodView):
                                worktimes=worktimes)
 
 
-class UserAll(MethodView):
+class UserAll(PermissionMixin, MethodView):
     @login_required
-    @admin_permission.require(403)
     def get(self):
         return render_template('user/user.html', user=None,
                                users=User.query.all())
@@ -192,9 +196,6 @@ def login():
 @login_required
 def logout():
     logout_user()
-    #clean session
-    for key in ('identity.name', 'identity.auth_type'):
-        session.pop(key, None)
     identity_changed.send(current_app._get_current_object(),
                           identity=AnonymousIdentity())
     return redirect(url_for('.homepage'))
