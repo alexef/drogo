@@ -1,8 +1,8 @@
 from flask import Flask
 from flask.ext.login import LoginManager
-from drogo.models import db
+from flask.ext.principal import Principal, RoleNeed, identity_loaded
+from drogo.models import db, User
 from drogo.views import views
-from drogo.auth import LdapUser
 
 
 def create_app(config={}):
@@ -15,15 +15,30 @@ def create_app(config={}):
     app.register_blueprint(views)
 
     app.secret_key = app.config['PRIVATE_KEY']
+    app.config['DEBUG'] = True
 
     if app.config.get('SENTRY_DSN'):
         from raven.contrib.flask import Sentry
         Sentry(app)
 
+    @app.errorhandler(403)
+    def permission_denied(error):
+        return "Permission denied", 403
+
+    @identity_loaded.connect_via(app)
+    def on_identity_loaded(sender, identity):
+        if identity.id and User.query.get(identity.id).is_admin:
+            identity.provides.add(RoleNeed('admin'))
+
     login_manager = LoginManager()
     @login_manager.user_loader
     def load_user(userid):
-        return LdapUser(uid=userid)
+        try:
+            return User.query.get(userid)
+        except:
+            return None
     login_manager.setup_app(app)
+
+    Principal(app)
 
     return app
