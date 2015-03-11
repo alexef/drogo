@@ -22,12 +22,12 @@ def create_app(config={}):
         Sentry(app)
 
     @app.errorhandler(403)
-    def not_found(error):
-        return "Permission denied",403
+    def permission_denied(error):
+        return "Permission denied", 403
 
     @identity_loaded.connect_via(app)
     def on_identity_loaded(sender, identity):
-        if User.query.get(identity.id).isAdmin:
+        if identity.id and User.query.get(identity.id).is_admin:
             identity.provides.add(RoleNeed('admin'))
 
     login_manager = LoginManager()

@@ -13,7 +13,7 @@ class User(db.Model):
     ldap_gid = db.Column(Integer)
     ldap_name = db.Column(String(128))
     active = db.Column(Boolean)
-    isAdmin = db.Column(Boolean, default=False)
+    is_admin = db.Column(Boolean, default=False)
     full_name = db.Column(String(128))
     calendar_url = db.Column(String(128))
 
