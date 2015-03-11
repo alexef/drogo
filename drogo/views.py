@@ -20,7 +20,7 @@ views = Blueprint('views', __name__)
 class PermissionMixin(object):
     @admin_permission.require(403)
     def dispatch_request(self, *args, **kwargs):
-        super(self, *args, **kwargs)
+        return super(PermissionMixin, self).dispatch_request(*args, **kwargs)
 
 
 class Homepage(MethodView):
