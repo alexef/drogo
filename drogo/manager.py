@@ -91,9 +91,14 @@ def init():
 @user_manager.command
 def list():
     for user in User.query.all():
-        print "{id} {full_name} {calendar}".format(id=user.id,
-                                                   full_name=user.full_name,
-                                                   calendar=user.calendar_url)
+        print (
+            "{id} {full_name} {calendar} {is_admin}"
+            .format(id=user.id,
+                    full_name=user.full_name,
+                    calendar=user.calendar_url,
+                    ldap_username=user.ldap_username,
+                    is_admin=user.is_admin)
+        )
 
 
 @user_manager.command
@@ -105,6 +110,12 @@ def mod(userid):
     cal = raw_input("Calendar URL (enter for unchanged):")
     if cal:
         user.calendar_url = cal
+    ldap_username = raw_input("Ldap username (enter for unchanged):")
+    if ldap_username:
+        user.ldap_username = ldap_username
+    is_admin = raw_input("Admin user y/n (enter for unchanged):")
+    if is_admin == 'y':
+        user.is_admin = True
     db.session.commit()
     print "updated."
 

@@ -9,7 +9,7 @@ db = SQLAlchemy()
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(Integer, primary_key=True)
-    ldap_name = db.Column(String(128))
+    ldap_username = db.Column(String(128))
     is_admin = db.Column(Boolean, default=False)
     full_name = db.Column(String(128))
     calendar_url = db.Column(String(128))

@@ -28,8 +28,10 @@ def create_app(config={}):
 
     @identity_loaded.connect_via(app)
     def on_identity_loaded(sender, identity):
-        if identity.id and User.query.get(identity.id).is_admin:
-            identity.provides.add(RoleNeed('admin'))
+        if identity.id:
+            user = User.query.get(identity.id)
+            if user and user.is_admin:
+                identity.provides.add(RoleNeed('admin'))
 
     login_manager = LoginManager()
     @login_manager.user_loader
