@@ -3,7 +3,11 @@ Drogo - A Timesheet Manager
 
 Install dependencies:
 
-    apt-get install libsqlite3-dev
+Debian: 
+    apt-get install libsqlite3-dev python-ldap-dev
+    
+Centos:
+    yum install openldap24-libs-devel
 
 
 Initial setup:
