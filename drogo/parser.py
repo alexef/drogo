@@ -19,12 +19,12 @@ def parse_summary_text(summary):
 
 def parse_event(component):
     try:
-        info = parse_summary_text(unicode(component['summary']))
+        info = parse_summary_text(str(component['summary']))
         return {
             'modified': naive(component['last-modified'].dt),
             'start': naive(component['dtstart'].dt),
             'end': naive(component['dtend'].dt),
-            'summary': unicode(component['summary']),
+            'summary': str(component['summary']),
             'uid': component['uid'],
             'hours': info['hours'],
             'tickets': info['tickets'],
@@ -60,8 +60,8 @@ def parse_summary(worktime):
     project_names = get_projects()
     summary_low = summary.lower()
 
-    project_names_extended = filter(lambda s: ' ' in s, project_names)
-    project_names_simple = filter(lambda s: ' ' not in s, project_names)
+    project_names_extended = [s for s in project_names if ' ' in s]
+    project_names_simple = [s for s in project_names if ' ' not in s]
     for name in project_names_extended:
         if name in summary_low:
             worktime.project = project_names[name]

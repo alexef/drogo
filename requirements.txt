@@ -11,9 +11,6 @@ TravisPy==0.3.3
 Werkzeug==0.9.6
 icalendar==3.8.2
 itsdangerous==0.24
-pysqlite==2.6.3
 pytz==2014.4
 requests==2.3.0
-wsgiref==0.1.2
-simpleldap==0.8
 WTForms==2.0.2

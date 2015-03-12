@@ -91,33 +91,33 @@ def init():
 @user_manager.command
 def list():
     for user in User.query.all():
-        print (
+        print((
             "{id} {full_name} {calendar} {is_admin}"
             .format(id=user.id,
                     full_name=user.full_name,
                     calendar=user.calendar_url,
                     ldap_username=user.ldap_username,
                     is_admin=user.is_admin)
-        )
+        ))
 
 
 @user_manager.command
 def mod(userid):
     user = User.query.get(userid)
-    name = raw_input("Full Name (enter for unchanged):")
+    name = input("Full Name (enter for unchanged):")
     if name:
         user.full_name = name
-    cal = raw_input("Calendar URL (enter for unchanged):")
+    cal = input("Calendar URL (enter for unchanged):")
     if cal:
         user.calendar_url = cal
-    ldap_username = raw_input("Ldap username (enter for unchanged):")
+    ldap_username = input("Ldap username (enter for unchanged):")
     if ldap_username:
         user.ldap_username = ldap_username
-    is_admin = raw_input("Admin user y/n (enter for unchanged):")
+    is_admin = input("Admin user y/n (enter for unchanged):")
     if is_admin == 'y':
         user.is_admin = True
     db.session.commit()
-    print "updated."
+    print("updated.")
 
 
 @work_manager.command
@@ -140,10 +140,10 @@ def parse(filename, userid, last_update=None):
 @work_manager.command
 def list_all():
     for user in User.query.all():
-        print "User: ", user.id
+        print("User: ", user.id)
         for wt in user.worktimes:
-            print " ", wt.day, wt.details, wt.hours, "hours", unicode(
-                wt.project)
+            print(" ", wt.day, wt.details, wt.hours, "hours", str(
+                wt.project))
 
 
 @work_manager.command
@@ -151,15 +151,15 @@ def list_project(slug):
     projects = get_projects()
     project_obj = projects.get(slug)
     if not project_obj:
-        print "No project with this name."
+        print("No project with this name.")
     else:
         total = 0
         for wt in project_obj.worktimes:
-            print " ", wt.day, wt.details, wt.hours, "hours", unicode(
-                wt.project)
+            print(" ", wt.day, wt.details, wt.hours, "hours", str(
+                wt.project))
             if wt.hours:
                 total += wt.hours
-        print "Total: ", total, "hours"
+        print("Total: ", total, "hours")
 
 
 @work_manager.command
@@ -190,10 +190,10 @@ def update_all():
 
         resp = requests.get(user.calendar_url)
         if resp.status_code != 200:
-            print "Failed to get calendar feed. (response: {0}".format(
-                resp.status_code)
+            print("Failed to get calendar feed. (response: {0}".format(
+                resp.status_code))
         else:
-            print "Fetched", user.calendar_url
+            print("Fetched", user.calendar_url)
             events = parse_ical(resp.content)
             for event in events:
                 add_event(event, user.id)

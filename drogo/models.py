@@ -39,7 +39,7 @@ class User(db.Model):
         )
 
     def __unicode__(self):
-        return self.full_name or unicode(self.id)
+        return self.full_name or str(self.id)
 
     def is_active(self):
         return True

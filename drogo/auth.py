@@ -1,4 +1,4 @@
-import simpleldap
+import ldap3
 from flask import current_app, flash
 from drogo.models import db, User
 
@@ -10,11 +10,16 @@ def ldap_fetch(name=None, passwd=None):
     user_id = None
     try:
         if name is not None and passwd is not None:
-            l = simpleldap.Connection(ldapsrv,
-                                      dn='uid={0},{1}'.format(name, basedn),
-                                      password=passwd)
-            r = l.search('uid={0}'.format(name), base_dn=basedn)
-            user_id = r[0]['uid'][0]
+            server = ldap3.Server(ldapsrv)
+            l = ldap3.Connection(
+                server, user='uid={0},{1}'.format(name, basedn),
+                password=passwd, auto_bind=True,
+            )
+            r = l.search(
+                search_filter='(uid={0})'.format(name), search_base=basedn,
+                attributes=['uid'],
+            )
+            user_id = l.response[0]['attributes']['uid'][0]
     except Exception as e:
         flash('Could not login: {}'.format(e), 'error')
         return None
