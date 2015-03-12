@@ -1,12 +1,12 @@
 from datetime import date, datetime
-from flask import Blueprint, current_app
+from flask import Blueprint, current_app, abort
 from flask.views import MethodView
-from flask import render_template, request, redirect, flash, url_for, session
+from flask import render_template, request, redirect, flash, url_for
 from flask.ext.login import (
     login_user, login_required, logout_user, current_user,
 )
 from flask.ext.principal import (
-    Principal, Identity, AnonymousIdentity, identity_changed, RoleNeed,
+    Identity, AnonymousIdentity, identity_changed
 )
 from flask.ext.admin.contrib.sqla import ModelView
 from travispy import TravisPy
@@ -32,7 +32,7 @@ class Homepage(MethodView):
                                projects=get_all_projects().count())
 
 
-class Dashboard(PermissionMixin, MethodView):
+class Dashboard(MethodView):
     @login_required
     def get(self):
         projects = list(get_all_projects())
@@ -96,9 +96,6 @@ class UserMixin(object):
 
         total, days_computed = get_total_days(self.worktimes)
 
-        if user_id != current_user.id:
-            admin_permission.test()
-
         return {
             'users': User.query.all(),
             'month': self.month,
@@ -108,13 +105,19 @@ class UserMixin(object):
             'days_computed': days_computed,
         }
 
+    def dispatch_request(self, *args, **kwargs):
+        if kwargs['user_id'] != current_user.id and not admin_permission.can():
+            abort(403)
+        return super(UserMixin, self).dispatch_request(*args, **kwargs)
+
 
 class UserView(UserMixin, MethodView):
     @login_required
     def get(self, user_id):
         context = self.get_context(user_id)
-        return render_template('user/user.html',
-                               endpoint='views.user', **context)
+        return render_template(
+            'user/user.html', endpoint='views.user', **context
+        )
 
 
 class PerdayView(UserView):
@@ -137,9 +140,10 @@ class PerdayView(UserView):
             if day_data:
                 days_data.append({'day': day, 'projects': day_data})
         days_data.sort(key=lambda s: s['day'])
-        return render_template('user/perday.html',
-                               endpoint='views.user', days=days_data,
-                               **context)
+        return render_template(
+            'user/perday.html', endpoint='views.user', days=days_data,
+            **context
+        )
 
 
 class UserOverviewView(UserMixin, MethodView):
@@ -202,7 +206,7 @@ def login():
             if user:
                 login_user(user)
                 identity_changed.send(current_app._get_current_object(),
-                                  identity=Identity(user.id))
+                                      identity=Identity(user.id))
                 return redirect(url_for('.user-overview', user_id=user.id))
         else:
             flash("Incorrect username or password")

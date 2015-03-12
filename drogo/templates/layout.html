@@ -25,12 +25,17 @@
           </div>
           <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
+              {% if current_user.is_admin %}
               <li {{ active('project') }}><a href="{{ url_for('.projects') }}">Projects</a></li>
               <li {{ active('user') }}><a href="{{ url_for('.users') }}">Users</a></li>
+              <li class="pull-right"><a href="{{ url_for('admin.index') }}">Admin</a></li>
+              {% endif %}
+              <li {{ active('dashboard') }}><a href="{{ url_for('.dashboard') }}">Dashboard</a></li>
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
       </div>
-      <div class=metanav align="right">
+
+      <div class="metanav pull-right">
         {% if not session.user_id %}
           <a href="{{ url_for('.login') }}">log in</a>
         {% else %}

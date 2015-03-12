@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask.ext.login import LoginManager
 from flask.ext.principal import Principal, RoleNeed, identity_loaded
 from flask.ext.admin import Admin
@@ -16,7 +16,6 @@ def create_app(config={}):
     app.register_blueprint(views)
 
     app.secret_key = app.config['PRIVATE_KEY']
-    app.config['DEBUG'] = True
 
     if app.config.get('SENTRY_DSN'):
         from raven.contrib.flask import Sentry
@@ -24,7 +23,7 @@ def create_app(config={}):
 
     @app.errorhandler(403)
     def permission_denied(error):
-        return "Permission denied", 403
+        return render_template("denied.html"), 403
 
     @identity_loaded.connect_via(app)
     def on_identity_loaded(sender, identity):
