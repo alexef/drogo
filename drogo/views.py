@@ -1,4 +1,5 @@
 from datetime import date, datetime
+
 from flask import Blueprint, current_app, abort
 from flask.views import MethodView
 from flask import render_template, request, redirect, flash, url_for
@@ -8,8 +9,8 @@ from flask.ext.login import (
 from flask.ext.principal import (
     Identity, AnonymousIdentity, identity_changed
 )
-from flask.ext.admin.contrib.sqla import ModelView
 from travispy import TravisPy
+
 from drogo.models import Project, User, Worktime
 from drogo.utils import get_total_days, get_end_day, get_all_projects
 from drogo.forms import LoginForm
@@ -178,14 +179,6 @@ class UserSummaryView(UserMixin, MethodView):
         return render_template('user/summary.html', data=data,
                                endpoint='views.user-summary',
                                **context)
-
-
-class AdminUserView(ModelView):
-    def __init__(self, session, **kwargs):
-        super(AdminUserView, self).__init__(User, session, **kwargs)
-
-    def is_accessible(self):
-        return current_user.is_authenticated() and current_user.is_admin
 
 
 # utils

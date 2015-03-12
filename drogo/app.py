@@ -2,8 +2,9 @@ from flask import Flask, render_template
 from flask.ext.login import LoginManager
 from flask.ext.principal import Principal, RoleNeed, identity_loaded
 from flask.ext.admin import Admin
-from drogo.models import db, User
-from drogo.views import views, AdminUserView
+from drogo.admin import AdminModelView
+from drogo.models import db, User, Project
+from drogo.views import views
 
 
 def create_app(config={}):
@@ -43,6 +44,7 @@ def create_app(config={}):
 
     Principal(app)
     admin = Admin(app)
-    admin.add_view(AdminUserView(db.session))
+    admin.add_view(AdminModelView(User, db.session))
+    admin.add_view(AdminModelView(Project, db.session))
 
     return app
