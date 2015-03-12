@@ -95,6 +95,10 @@ class UserMixin(object):
         self.worktimes = self.user.month_worktimes(self.month)
 
         total, days_computed = get_total_days(self.worktimes)
+
+        if user_id != current_user.id:
+            admin_permission.test()
+
         return {
             'users': User.query.all(),
             'month': self.month,
