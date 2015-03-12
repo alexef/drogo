@@ -38,7 +38,7 @@ class User(db.Model):
             .order_by(Worktime.day.desc())
         )
 
-    def __unicode__(self):
+    def __repr__(self):
         return self.full_name or str(self.id)
 
     def is_active(self):
