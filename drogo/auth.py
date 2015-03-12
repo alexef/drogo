@@ -17,8 +17,8 @@ def ldap_fetch(name=None, passwd=None):
 
     existing_user = User.query.filter(User.ldap_name == r[0]['uid'][0]).first()
     if existing_user:
-        existing_user.active = int(r[0]['gidNumber'][0]) != 404
-        existing_user.ldap_uid = unicode(r[0]['uidNumber'][0])
-        db.session.commit()
         return existing_user
-    return None
+    new_user = User(ldap_name=r[0]['uid'][0], full_name=r[0]['uid'][0])
+    db.session.add(new_user)
+    db.session.commit()
+    return new_user

@@ -2,10 +2,13 @@ from datetime import date, datetime
 from flask import Blueprint, current_app
 from flask.views import MethodView
 from flask import render_template, request, redirect, flash, url_for, session
-from flask.ext.login import login_user, login_required, logout_user
+from flask.ext.login import (
+    login_user, login_required, logout_user, current_user,
+)
 from flask.ext.principal import (
     Principal, Identity, AnonymousIdentity, identity_changed, RoleNeed,
 )
+from flask.ext.admin.contrib.sqla import ModelView
 from travispy import TravisPy
 from drogo.models import Project, User, Worktime
 from drogo.utils import get_total_days, get_end_day, get_all_projects
@@ -168,6 +171,15 @@ class UserSummaryView(UserMixin, MethodView):
                                endpoint='views.user-summary',
                                **context)
 
+
+class AdminUserView(ModelView):
+    def __init__(self, session, **kwargs):
+        super(AdminUserView, self).__init__(User, session, **kwargs)
+
+    def is_accessible(self):
+        return current_user.is_authenticated() and current_user.is_admin
+
+
 # utils
 @views.add_app_template_global
 def active(text, force=False):
@@ -183,13 +195,13 @@ def login():
         if form.validate():
             user = ldap_fetch(name=form.username.data,
                               passwd=form.password.data)
-            if user and user.active is not False:
+            if user:
                 login_user(user)
                 identity_changed.send(current_app._get_current_object(),
                                   identity=Identity(user.id))
                 return redirect(url_for('.user-overview', user_id=user.id))
         else:
-            flash("Username or password incorrect :(")
+            flash("Incorrect username or password")
     return render_template("login.html", form=form)
 
 

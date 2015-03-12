@@ -9,10 +9,7 @@ db = SQLAlchemy()
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(Integer, primary_key=True)
-    ldap_uid = db.Column(Integer)
-    ldap_gid = db.Column(Integer)
     ldap_name = db.Column(String(128))
-    active = db.Column(Boolean)
     is_admin = db.Column(Boolean, default=False)
     full_name = db.Column(String(128))
     calendar_url = db.Column(String(128))
@@ -45,7 +42,7 @@ class User(db.Model):
         return self.full_name or unicode(self.id)
 
     def is_active(self):
-        return self.active
+        return True
 
     def is_anonymous(self):
         return False
