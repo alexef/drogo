@@ -41,19 +41,24 @@
       {% block breadcrumbs %}
       {% endblock %}
 
+      {% block messages %}
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="messages">
+              <ul class="flashes">
+              {% for message in messages %}
+                {{ message }}
+              {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+        {% endwith %}
+      {% endblock %}
+
       {% block content %}
       {% endblock %}
     </div> <!-- /container -->
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class=flashes>
-        {% for message in messages %}
-          {{ message }}
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
