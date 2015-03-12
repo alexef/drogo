@@ -224,13 +224,13 @@ views.add_url_rule('/project/<project_id>/monthly',
 views.add_url_rule('/project/all',
                    view_func=ProjectView.as_view('projects'))
 views.add_url_rule('/user/all', view_func=UserAll.as_view('users'))
-views.add_url_rule('/user/<user_id>/listing',
+views.add_url_rule('/user/<int:user_id>/listing',
                    view_func=UserView.as_view('user'))
-views.add_url_rule('/user/<user_id>/overview',
+views.add_url_rule('/user/<int:user_id>/overview',
                    view_func=UserOverviewView.as_view('user-overview'))
-views.add_url_rule('/user/<user_id>/summary',
+views.add_url_rule('/user/<int:user_id>/summary',
                    view_func=UserSummaryView.as_view('user-summary'))
-views.add_url_rule('/user/<user_id>/perday',
+views.add_url_rule('/user/<int:user_id>/perday',
                    view_func=PerdayView.as_view('perday'))
 views.add_url_rule('/login', view_func=login, methods=['GET', 'POST'])
 views.add_url_rule('/logout', view_func=logout)
