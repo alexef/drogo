@@ -15,10 +15,11 @@ def ldap_fetch(name=None, passwd=None):
     except:
         return None
 
-    existing_user = User.query.filter(User.ldap_name == r[0]['uid'][0]).first()
+    existing_user = User.query.filter(
+        User.ldap_username == r[0]['uid'][0]).first()
     if existing_user:
         return existing_user
-    new_user = User(ldap_name=r[0]['uid'][0], full_name=r[0]['uid'][0])
+    new_user = User(ldap_username=r[0]['uid'][0], full_name=r[0]['uid'][0])
     db.session.add(new_user)
     db.session.commit()
     return new_user
